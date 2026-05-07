@@ -29,6 +29,10 @@ export default function Projects() {
 
   const loadProjects = async () => {
     try {
+      if (!supabase) {
+        throw new Error('Supabase client not initialized');
+      }
+
       const { data, error } = await supabase
         .from('projects')
         .select('*')
@@ -36,7 +40,7 @@ export default function Projects() {
 
       if (error) throw error;
 
-      const formattedProjects = data.map(project => ({
+      const formattedProjects = data?.map((project: any) => ({
         id: project.id,
         customerName: project.customer_name,
         contactNo: project.contact_no,
@@ -46,7 +50,7 @@ export default function Projects() {
         chassisNo: project.chassis_no,
         amount: project.amount,
         createdAt: new Date(project.created_at).toLocaleDateString(),
-      }));
+      })) || [];
 
       setProjects(formattedProjects);
     } catch (error) {
@@ -65,6 +69,10 @@ export default function Projects() {
 
   const handleCreateProject = async (newProject: Omit<Project, "id" | "createdAt">) => {
     try {
+      if (!supabase) {
+        throw new Error('Supabase client not initialized');
+      }
+
       const { data, error } = await supabase
         .from('projects')
         .insert([
@@ -104,6 +112,10 @@ export default function Projects() {
 
   const handleDeleteProject = async (id: string) => {
     try {
+      if (!supabase) {
+        throw new Error('Supabase client not initialized');
+      }
+
       const { error } = await supabase
         .from('projects')
         .delete()
