@@ -40,6 +40,9 @@ export default function Invoice() {
               productDescription: data.product_description,
               hsnNo: data.hsn_no,
               chassisNo: data.chassis_no,
+              motorNo: data.motor_no || "",
+              batteryNo: data.battery_no || "",
+              invoiceDate: data.invoice_date || "",
               amount: data.amount,
               createdAt: new Date(data.created_at).toLocaleDateString(),
             };
@@ -149,6 +152,19 @@ export default function Invoice() {
           {/* GST Type Selector and Place of Supply */}
           <div className="mb-6 print:hidden">
             <div className="bg-white p-4 rounded-lg border border-border shadow-sm max-w-4xl mx-auto space-y-4">
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-700">
+                  Invoice No:
+                </label>
+                <input
+                  type="text"
+                  value={invoiceNo}
+                  onChange={(e) => setInvoiceNo(e.target.value)}
+                  placeholder="Enter invoice number"
+                  className="text-sm border border-gray-300 rounded px-3 py-2 bg-white font-medium w-full focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
               <div>
                 <label className="block text-sm font-semibold mb-2 text-gray-700">
                   GST Type:

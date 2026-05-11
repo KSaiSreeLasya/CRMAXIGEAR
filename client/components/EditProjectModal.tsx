@@ -23,6 +23,9 @@ export default function EditProjectModal({
     productDescription: "",
     hsnNo: "",
     chassisNo: "",
+    motorNo: "",
+    batteryNo: "",
+    invoiceDate: "",
     amount: "",
   });
 
@@ -37,6 +40,9 @@ export default function EditProjectModal({
         productDescription: project.productDescription,
         hsnNo: project.hsnNo,
         chassisNo: project.chassisNo,
+        motorNo: project.motorNo || "",
+        batteryNo: project.batteryNo || "",
+        invoiceDate: project.invoiceDate || "",
         amount: project.amount.toString(),
       });
     }
@@ -79,6 +85,15 @@ export default function EditProjectModal({
     if (!formData.chassisNo.trim()) {
       newErrors.chassisNo = "Chassis number is required";
     }
+    if (!formData.motorNo.trim()) {
+      newErrors.motorNo = "Motor number is required";
+    }
+    if (!formData.batteryNo.trim()) {
+      newErrors.batteryNo = "Battery number is required";
+    }
+    if (!formData.invoiceDate.trim()) {
+      newErrors.invoiceDate = "Invoice date is required";
+    }
     if (!formData.amount.trim()) {
       newErrors.amount = "Amount is required";
     } else if (isNaN(parseFloat(formData.amount))) {
@@ -103,6 +118,9 @@ export default function EditProjectModal({
       productDescription: formData.productDescription,
       hsnNo: formData.hsnNo,
       chassisNo: formData.chassisNo,
+      motorNo: formData.motorNo,
+      batteryNo: formData.batteryNo,
+      invoiceDate: formData.invoiceDate,
       amount: parseFloat(formData.amount),
     });
 
@@ -266,6 +284,62 @@ export default function EditProjectModal({
             </div>
 
             {/* Amount */}
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Motor No. *
+              </label>
+              <input
+                type="text"
+                name="motorNo"
+                value={formData.motorNo}
+                onChange={handleChange}
+                placeholder="Enter motor number"
+                className={`w-full px-4 py-2 border rounded-lg bg-background transition-colors focus:outline-none focus:ring-2 focus:ring-primary ${
+                  errors.motorNo ? "border-destructive" : "border-border"
+                }`}
+              />
+              {errors.motorNo && (
+                <p className="text-sm text-destructive mt-1">{errors.motorNo}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Battery No. *
+              </label>
+              <input
+                type="text"
+                name="batteryNo"
+                value={formData.batteryNo}
+                onChange={handleChange}
+                placeholder="Enter battery number"
+                className={`w-full px-4 py-2 border rounded-lg bg-background transition-colors focus:outline-none focus:ring-2 focus:ring-primary ${
+                  errors.batteryNo ? "border-destructive" : "border-border"
+                }`}
+              />
+              {errors.batteryNo && (
+                <p className="text-sm text-destructive mt-1">{errors.batteryNo}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Invoice Date *
+              </label>
+              <input
+                type="date"
+                name="invoiceDate"
+                value={formData.invoiceDate}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-lg bg-background transition-colors focus:outline-none focus:ring-2 focus:ring-primary ${
+                  errors.invoiceDate ? "border-destructive" : "border-border"
+                }`}
+              />
+              {errors.invoiceDate && (
+                <p className="text-sm text-destructive mt-1">{errors.invoiceDate}</p>
+              )}
+            </div>
+
             <div>
               <label className="block text-sm font-semibold mb-2">
                 Amount *

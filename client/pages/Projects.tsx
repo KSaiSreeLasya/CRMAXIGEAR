@@ -15,6 +15,9 @@ export interface Project {
   productDescription: string;
   hsnNo: string;
   chassisNo: string;
+  motorNo: string;
+  batteryNo: string;
+  invoiceDate: string;
   amount: number;
   createdAt: string;
 }
@@ -50,6 +53,9 @@ export default function Projects() {
             productDescription: project.product_description,
             hsnNo: project.hsn_no,
             chassisNo: project.chassis_no,
+            motorNo: project.motor_no || "",
+            batteryNo: project.battery_no || "",
+            invoiceDate: project.invoice_date || "",
             amount: project.amount,
             createdAt: new Date(project.created_at).toLocaleDateString(),
           })) || [];
@@ -83,6 +89,9 @@ export default function Projects() {
         productDescription: newProject.productDescription,
         hsnNo: newProject.hsnNo,
         chassisNo: newProject.chassisNo,
+        motorNo: newProject.motorNo,
+        batteryNo: newProject.batteryNo,
+        invoiceDate: newProject.invoiceDate,
         amount: newProject.amount,
         createdAt: new Date().toLocaleDateString(),
       };
@@ -105,6 +114,9 @@ export default function Projects() {
                 product_description: newProject.productDescription,
                 hsn_no: newProject.hsnNo,
                 chassis_no: newProject.chassisNo,
+                motor_no: newProject.motorNo,
+                battery_no: newProject.batteryNo,
+                invoice_date: newProject.invoiceDate,
                 amount: newProject.amount,
               }
             ])
@@ -120,6 +132,9 @@ export default function Projects() {
             productDescription: data[0].product_description,
             hsnNo: data[0].hsn_no,
             chassisNo: data[0].chassis_no,
+            motorNo: data[0].motor_no || "",
+            batteryNo: data[0].battery_no || "",
+            invoiceDate: data[0].invoice_date || "",
             amount: data[0].amount,
             createdAt: new Date(data[0].created_at).toLocaleDateString(),
           };
@@ -158,6 +173,9 @@ export default function Projects() {
               product_description: updatedData.productDescription,
               hsn_no: updatedData.hsnNo,
               chassis_no: updatedData.chassisNo,
+              motor_no: updatedData.motorNo,
+              battery_no: updatedData.batteryNo,
+              invoice_date: updatedData.invoiceDate,
               amount: updatedData.amount,
             })
             .eq('id', id);
@@ -292,6 +310,15 @@ export default function Projects() {
                       Chassis No.
                     </th>
                     <th className="px-6 py-4 text-left font-semibold text-foreground">
+                      Motor No.
+                    </th>
+                    <th className="px-6 py-4 text-left font-semibold text-foreground">
+                      Battery No.
+                    </th>
+                    <th className="px-6 py-4 text-left font-semibold text-foreground">
+                      Invoice Date
+                    </th>
+                    <th className="px-6 py-4 text-left font-semibold text-foreground">
                       Amount
                     </th>
                     <th className="px-6 py-4 text-left font-semibold text-foreground">
@@ -319,6 +346,15 @@ export default function Projects() {
                       </td>
                       <td className="px-6 py-4 font-mono text-sm">
                         {project.chassisNo}
+                      </td>
+                      <td className="px-6 py-4 font-mono text-sm">
+                        {project.motorNo || "-"}
+                      </td>
+                      <td className="px-6 py-4 font-mono text-sm">
+                        {project.batteryNo || "-"}
+                      </td>
+                      <td className="px-6 py-4">
+                        {project.invoiceDate || "-"}
                       </td>
                       <td className="px-6 py-4 font-semibold text-success">
                         {formatAmount(project.amount)}

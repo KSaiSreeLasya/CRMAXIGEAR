@@ -102,7 +102,7 @@ export default function InvoiceContent({
           </div>
           <div>
             <p className="text-xs text-gray-600 font-bold">Date:</p>
-            <p className="font-semibold">{project.createdAt}</p>
+            <p className="font-semibold">{project.invoiceDate || project.createdAt}</p>
           </div>
           <div>
             <p className="text-xs text-gray-600 font-bold">Place of Supply:</p>
@@ -149,6 +149,15 @@ export default function InvoiceContent({
             <th className="border border-gray-400 px-3 py-2 text-left text-xs font-bold text-gray-800 w-20">
               HSN
             </th>
+            <th className="border border-gray-400 px-3 py-2 text-left text-xs font-bold text-gray-800 w-40">
+              Chassis No.
+            </th>
+            <th className="border border-gray-400 px-3 py-2 text-left text-xs font-bold text-gray-800 w-40">
+              Motor No.
+            </th>
+            <th className="border border-gray-400 px-3 py-2 text-left text-xs font-bold text-gray-800 w-40">
+              Battery No.
+            </th>
             <th className="border border-gray-400 px-3 py-2 text-right text-xs font-bold text-gray-800 w-32">
               Amount (INR)
             </th>
@@ -164,6 +173,15 @@ export default function InvoiceContent({
             </td>
             <td className="border border-gray-400 px-3 py-2 text-xs font-mono text-gray-800">
               {project.hsnNo}
+            </td>
+            <td className="border border-gray-400 px-3 py-2 text-xs font-mono text-gray-800">
+              {project.chassisNo}
+            </td>
+            <td className="border border-gray-400 px-3 py-2 text-xs font-mono text-gray-800">
+              {project.motorNo || "-"}
+            </td>
+            <td className="border border-gray-400 px-3 py-2 text-xs font-mono text-gray-800">
+              {project.batteryNo || "-"}
             </td>
             <td className="border border-gray-400 px-3 py-2 text-xs text-right font-semibold text-gray-800">
               {baseAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
