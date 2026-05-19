@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Trash2, Plus, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { getEmployeeSession } from "@/lib/auth";
 
 interface InventoryItem {
   id: string;
@@ -72,6 +73,9 @@ export default function Inventory() {
   const [isLoadingSpares, setIsLoadingSpares] = useState(false);
   const [isSavingSpare, setIsSavingSpare] = useState(false);
 
+  const employeeSession = getEmployeeSession();
+  const isAdmin = !employeeSession;
+
 
   useEffect(() => {
     void loadInventory();
@@ -87,35 +91,39 @@ export default function Inventory() {
     setIsLoading(true);
     try {
       if (supabase) {
-        const { data, error } = await supabase
-          .from("inventory_items")
-          .select("*")
-          .order("sl_no", { ascending: true });
-        if (error) throw error;
-        const rows: InventoryItem[] =
-          data?.map((row: any) => ({
-            id: row.id,
-            slNo: row.sl_no,
-            modelNo: row.model_no || "",
-            brand: row.brand || "",
-            vehicleModel: row.vehicle_model || "",
-            hsnNo: row.hsn_no || "",
-            vehicleCount: row.vehicle_count || 0,
-            chassisNo: row.chassis_no || "",
-            motorNo: row.motor_no || "",
-            batteryNo: row.battery_no || "",
-            manufacturerInvNo: row.manufacturer_inv_no || "",
-            batteryModel: row.battery_model || "",
-            batteryCount: row.battery_count || 0,
-            salesCount: row.sales_count || 0,
-            closingStock: row.closing_stock || 0,
-            createdAt: new Date(row.created_at).toLocaleDateString(),
-          })) || [];
-        setItems(rows);
-      } else {
-        const raw = localStorage.getItem("crm_inventory_items");
-        if (raw) setItems(JSON.parse(raw));
+        try {
+          const { data, error } = await supabase
+            .from("inventory_items")
+            .select("*")
+            .order("sl_no", { ascending: true });
+          if (error) throw error;
+          const rows: InventoryItem[] =
+            data?.map((row: any) => ({
+              id: row.id,
+              slNo: row.sl_no,
+              modelNo: row.model_no || "",
+              brand: row.brand || "",
+              vehicleModel: row.vehicle_model || "",
+              hsnNo: row.hsn_no || "",
+              vehicleCount: row.vehicle_count || 0,
+              chassisNo: row.chassis_no || "",
+              motorNo: row.motor_no || "",
+              batteryNo: row.battery_no || "",
+              manufacturerInvNo: row.manufacturer_inv_no || "",
+              batteryModel: row.battery_model || "",
+              batteryCount: row.battery_count || 0,
+              salesCount: row.sales_count || 0,
+              closingStock: row.closing_stock || 0,
+              createdAt: new Date(row.created_at).toLocaleDateString(),
+            })) || [];
+          setItems(rows);
+          return;
+        } catch (supabaseError: any) {
+          console.warn("Supabase inventory load failed, falling back to localStorage:", supabaseError?.message);
+        }
       }
+      const raw = localStorage.getItem("crm_inventory_items");
+      if (raw) setItems(JSON.parse(raw));
     } catch (error) {
       console.error("Error loading inventory:", error);
     } finally {
@@ -351,7 +359,7 @@ export default function Inventory() {
     e.preventDefault();
     setIsSavingSpare(true);
     try {
-      const price = Number(spareForm.price || 0);
+      const price = isAdmin ? Number(spareForm.price || 0) : 0;
       const qty = Number(spareForm.qty || 0);
       const total = price * qty;
 
@@ -625,7 +633,7 @@ export default function Inventory() {
               <h2 className="text-xl font-semibold mb-4">
                 {editingSpareId ? "Edit Spare Item" : "Add Spare Item"}
               </h2>
-              <form onSubmit={handleSaveSpare} className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <form onSubmit={handleSaveSpare} className={`grid gap-4 ${isAdmin ? "grid-cols-1 md:grid-cols-5" : "grid-cols-1 md:grid-cols-2"}`}>
                 <input
                   className="px-4 py-2 border border-border rounded-lg bg-background"
                   placeholder="Part Name"
@@ -633,15 +641,17 @@ export default function Inventory() {
                   onChange={(e) => setSpareForm((prev) => ({ ...prev, partName: e.target.value }))}
                   required
                 />
-                <input
-                  className="px-4 py-2 border border-border rounded-lg bg-background"
-                  placeholder="Price"
-                  type="number"
-                  step="0.01"
-                  value={spareForm.price}
-                  onChange={(e) => setSpareForm((prev) => ({ ...prev, price: e.target.value }))}
-                  required
-                />
+                {isAdmin && (
+                  <input
+                    className="px-4 py-2 border border-border rounded-lg bg-background"
+                    placeholder="Price"
+                    type="number"
+                    step="0.01"
+                    value={spareForm.price}
+                    onChange={(e) => setSpareForm((prev) => ({ ...prev, price: e.target.value }))}
+                    required
+                  />
+                )}
                 <input
                   className="px-4 py-2 border border-border rounded-lg bg-background"
                   placeholder="Quantity"
@@ -650,9 +660,11 @@ export default function Inventory() {
                   onChange={(e) => setSpareForm((prev) => ({ ...prev, qty: e.target.value }))}
                   required
                 />
-                <div className="px-4 py-2 border border-border rounded-lg bg-muted flex items-center">
-                  <span className="text-sm font-medium">Total: ₹{(parseFloat(spareForm.price) * parseInt(spareForm.qty) || 0).toFixed(2)}</span>
-                </div>
+                {isAdmin && (
+                  <div className="px-4 py-2 border border-border rounded-lg bg-muted flex items-center">
+                    <span className="text-sm font-medium">Total: ₹{(parseFloat(spareForm.price) * parseInt(spareForm.qty) || 0).toFixed(2)}</span>
+                  </div>
+                )}
                 <button
                   type="submit"
                   disabled={isSavingSpare}
@@ -683,43 +695,45 @@ export default function Inventory() {
                 <p className="text-muted-foreground">No spares yet.</p>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[800px] text-sm">
+                  <table className={`w-full text-sm ${isAdmin ? "min-w-[800px]" : "min-w-[600px]"}`}>
                     <thead>
                       <tr className="border-b border-border">
                         <th className="px-4 py-2 text-left">Part Name</th>
-                        <th className="px-4 py-2 text-right">Price</th>
+                        {isAdmin && <th className="px-4 py-2 text-right">Price</th>}
                         <th className="px-4 py-2 text-right">Quantity</th>
-                        <th className="px-4 py-2 text-right">Total</th>
-                        <th className="px-4 py-2 text-left">Action</th>
+                        {isAdmin && <th className="px-4 py-2 text-right">Total</th>}
+                        {isAdmin && <th className="px-4 py-2 text-left">Action</th>}
                       </tr>
                     </thead>
                     <tbody>
                       {spares.map((spare) => (
                         <tr key={spare.id} className="border-b border-border">
                           <td className="px-4 py-2">{spare.partName}</td>
-                          <td className="px-4 py-2 text-right font-semibold">₹{spare.price.toFixed(2)}</td>
+                          {isAdmin && <td className="px-4 py-2 text-right font-semibold">₹{spare.price.toFixed(2)}</td>}
                           <td className="px-4 py-2 text-right">{spare.qty}</td>
-                          <td className="px-4 py-2 text-right font-semibold">₹{spare.total.toFixed(2)}</td>
-                          <td className="px-4 py-2">
-                            <div className="flex items-center gap-3">
-                              <button
-                                type="button"
-                                onClick={() => handleEditSpare(spare)}
-                                className="inline-flex items-center gap-1 text-primary hover:text-primary/90"
-                              >
-                                <Edit className="w-4 h-4" />
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => void handleDeleteSpare(spare.id)}
-                                className="inline-flex items-center gap-1 text-destructive hover:text-destructive/90"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                Delete
-                              </button>
-                            </div>
-                          </td>
+                          {isAdmin && <td className="px-4 py-2 text-right font-semibold">₹{spare.total.toFixed(2)}</td>}
+                          {isAdmin && (
+                            <td className="px-4 py-2">
+                              <div className="flex items-center gap-3">
+                                <button
+                                  type="button"
+                                  onClick={() => handleEditSpare(spare)}
+                                  className="inline-flex items-center gap-1 text-primary hover:text-primary/90"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => void handleDeleteSpare(spare.id)}
+                                  className="inline-flex items-center gap-1 text-destructive hover:text-destructive/90"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>
