@@ -34,26 +34,8 @@ CREATE INDEX IF NOT EXISTS idx_service_invoices_user_id ON service_invoices(user
 CREATE INDEX IF NOT EXISTS idx_service_invoices_service_invoice_no ON service_invoices(service_invoice_no);
 CREATE INDEX IF NOT EXISTS idx_service_invoices_created_at ON service_invoices(created_at DESC);
 
--- Enable Row Level Security
-ALTER TABLE service_invoices ENABLE ROW LEVEL SECURITY;
-
--- RLS Policies
-CREATE POLICY "Users can view their own service invoices"
-  ON service_invoices FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert their own service invoices"
-  ON service_invoices FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own service invoices"
-  ON service_invoices FOR UPDATE
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete their own service invoices"
-  ON service_invoices FOR DELETE
-  USING (auth.uid() = user_id);
+-- Disable Row Level Security to allow employee-based access
+ALTER TABLE service_invoices DISABLE ROW LEVEL SECURITY;
 
 -- Grant permissions
 GRANT SELECT, INSERT, UPDATE, DELETE ON service_invoices TO authenticated;

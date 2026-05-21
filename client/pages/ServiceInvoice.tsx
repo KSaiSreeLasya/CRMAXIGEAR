@@ -317,16 +317,26 @@ export default function ServiceInvoice() {
         let created: ServiceInvoiceRecord;
         if (supabase) {
           try {
+            let userId: string | null = null;
+
+            // Try to get authenticated user
             const { data: userData } = await supabase.auth.getUser();
-            if (!userData.user?.id) {
-              throw new Error("User not authenticated");
+            userId = userData.user?.id || null;
+
+            // If no Supabase auth, try employee session
+            if (!userId) {
+              const employeeSession = getEmployeeSession();
+              if (!employeeSession) {
+                throw new Error("No user session found");
+              }
+              userId = `employee-${employeeSession.employeeId}`;
             }
 
             const { data, error } = await supabase
               .from("service_invoices")
               .insert([
                 {
-                  user_id: userData.user.id,
+                  user_id: userId,
                   service_invoice_no: payload.serviceInvoiceNo,
                   customer_name: payload.customerName,
                   contact_no: payload.contactNo,
